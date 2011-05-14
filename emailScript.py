@@ -35,59 +35,32 @@ def getText():
     return text
 
 
-def sendMails(h, text):
-    gotError = False
-    p = re.compile('^.*@.*$')
-    gmailUser = raw_input("What's your full email or user name (default is @movein.to)? ")
-    m = p.search(gmailUser)
-    if m:
-        gmailUser = gmailUser
-    else:
-        gmailUser += '@movein.to'
+def embedImage(msg,embedImageDirPath):
+    # default to image dir
+    if not embedImageDirPath:
+        embedImageDirPath = 'image'
 
-    print gmailUser
+    for filename in os.listdir(embedImageDirPath):
+        path = os.path.join(embedImageDirPath, filename)
+        
+        if not os.path.isfile(path):
+            continue
+        
+        contentType, encoding = mimetypes.guess_type(path)
+        mainType, subType = contentType.split('/',1)
 
-    gmailPassword = getpass()
-    recipient = ''
-    subject = raw_input("Please enter the subject line: ")
-    greeting = raw_input("Please enter your greeting (e.g. Dear, Hi,...): ")
-    fromStr = raw_input("Please enter your name: ")
-    attachmentDirPath = raw_input("Please directory with files to attach: ")
-
-    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
-    mailServer.ehlo()
-    mailServer.starttls()
-    mailServer.ehlo()
-    mailServer.login(gmailUser, gmailPassword)
-
-    for t in h:
-        personal_text = greeting + " " + t[NAME] + ",\n"
-        personal_text += text + "\n"
-        recipient = t[EMAIL]
-        msg = MIMEMultipart()
-        msg['Subject'] = subject
-        msg['To'] = recipient
-        msg['From'] = fromStr
-        msg.attach(MIMEText(personal_text))
-	getAttachments(msg,attachmentDirPath)
-        try:
-            mailServer.sendmail(gmailUser, recipient, msg.as_string())
-            print('Sent email to %s at %s' % (t[NAME],recipient))
-        except Exception, e:
-            gotError = True
-            print '\nIf you read this then email me the text below!\n'
-            print e
-
-
-    mailServer.close()
-    print("Done!\n")
-    if gotError:
-        print 'Some error(s) occured. Please see the text generated above!\n'
+        if mainType == 'image':
+            fp = open(path,'rb')
+            msgImage = MIMEImage(fp.read())
+            fp.close
+            msgImage.add_header('Content-ID', '<image1>')
+            msg.attach(msgImage)
+            break
 
 def getAttachments(msg,attachmentDirPath):
     #default to current directory
     if not attachmentDirPath:
-        attachmentDirPath = '.'
+        attachmentDirPath = 'attachments'
 
     for filename in os.listdir(attachmentDirPath):
         path = os.path.join(attachmentDirPath, filename)
@@ -116,9 +89,65 @@ def getAttachments(msg,attachmentDirPath):
         attachment.add_header('Content-Disposition', 'attachment', 
                                   filename=os.path.basename(path))
         msg.attach(attachment)
+    
+
+def sendMails(h, text):
+    gotError = False
+    p = re.compile('^.*@.*$')
+    gmailUser = raw_input("What's your full email or user name (default is @movein.to)? ")
+    m = p.search(gmailUser)
+    if m:
+        gmailUser = gmailUser
+    else:
+        gmailUser += '@movein.to'
+
+    print gmailUser
+
+    gmailPassword = getpass()
+    recipient = ''
+    subject = raw_input("Please enter the subject line: ")
+    greeting = raw_input("Please enter your greeting (e.g. Dear, Hi,...): ")
+    fromStr = raw_input("Please enter your name: ")
+    attachmentDirPath = raw_input(
+        "Please enter directory name with files to attach [attachments as default]: ")
+    embedImageDirPath = raw_input(
+        "Please enter directory name with image to embed [image as default]:")
+    raw_input("\nPlease make sure info above is correct!!! [Press enter to continue or Control+C to quit]")
+
+    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+    mailServer.ehlo()
+    mailServer.starttls()
+    mailServer.ehlo()
+    mailServer.login(gmailUser, gmailPassword)
+
+    for t in h:
+        personal_text = greeting + " " + t[NAME] + ",\n"
+        personal_text += text + "\n"
+        personal_text += '<br><img src="cid:image1">'
+        recipient = t[EMAIL]
+        msg = MIMEMultipart('related')
+        msg['Subject'] = subject
+        msg['To'] = recipient
+        msg['From'] = fromStr
+        msg.attach(MIMEText(personal_text, 'html'))
+	getAttachments(msg,attachmentDirPath)
+        embedImage(msg,embedImageDirPath)
+        try:
+            mailServer.sendmail(gmailUser, recipient, msg.as_string())
+            print('Sent email to %s at %s' % (t[NAME],recipient))
+        except Exception, e:
+            gotError = True
+            print '\nIf you read this then email me the text below!\n'
+            print e
+
+
+    mailServer.close()
+    print("Done!\n")
+    if gotError:
+        print 'Some error(s) occured. Please see the text generated above!\n'
 
 if __name__ == "__main__":
-    print "Please make sure there is 'namesEmails.csv' and 'text.txt' fps in the script folder before proceeding."
+    print "Please make sure there is 'namesEmails.csv' and 'text.txt' files in the script folder before proceeding."
     print "CSV file format must be 'name, email_address' per line. [Press Enter to Continue]"
     raw_input()
     text = getText()
