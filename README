@@ -1,9 +1,9 @@
-This script allows you to send email from your GMail with options of attachments and an
+This script allows you to send email from your GMail with options of attachment(s) and an
 inline/embedded image to multiple recepients yet personalized.
 
 To make it work you will need to install Python on your computer.
 You can find it here www.python.org/download for your platfrom (PC, Mac,..)
-Make sure you don't install version 3 and above.
+Make sure you *don't* install version 3 and above.
 
 FOR PC USERS
 On Windows computers python require more tweaking.
@@ -21,7 +21,7 @@ Copy emailScript.py into the folder.
 
 Click Start and type "cmd" without quotes if you are on Vista or 7; or click
 Run if you are on XP and type "cmd" without quotes.
-Now type in the following followed by ENTER
+Now type in the following commands followed by ENTER
 
 cd C:\emailing
 python emailScript.py
@@ -34,7 +34,7 @@ mkdir emailing && cd emailing
 
 Then download https://github.com/valyok/multipleRecipientsEmailTool/raw/master/emailScript.py
 and put into the emailing folder.
-Go back terminal and type in the following followed by ENTER
+Go back terminal and type in the following command followed by ENTER
 
 python emailScript.py
 
@@ -44,7 +44,7 @@ As the instruction after running the script suggest you must have 4 things in pl
 Two directories - attachments and image, 2 files list.txt and text.txt
 
 text.txt file is for the message of the email. It can contain basic HTML tags (e.g. br, p, h1,...)
-list.txt is name, email_address format per line.
+list.txt is "name, email_address" format per line text file.
 For example:
-John, john@gmail.com
+John, john@yahoo.com
 Kate, kate@gmail.lcom
