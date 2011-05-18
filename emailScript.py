@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 import smtplib
 import mimetypes
 from email.MIMEMultipart import MIMEMultipart
@@ -18,10 +19,10 @@ EMAIL = 1
 
 def getNamesEmails():
     h = []
-    f = open('namesEmails.csv', 'r')
+    f = open('list.txt', 'r')
     for line in f:
         name, email = line.split(',')
-        h.append((name, email.strip()))
+        h.append((name.strip(), email.strip()))
 
     return h
 
@@ -36,9 +37,6 @@ def getText():
 
 
 def embedImage(msg,embedImageDirPath):
-    # default to image dir
-    if not embedImageDirPath:
-        embedImageDirPath = 'image'
 
     for filename in os.listdir(embedImageDirPath):
         path = os.path.join(embedImageDirPath, filename)
@@ -58,9 +56,6 @@ def embedImage(msg,embedImageDirPath):
             break
 
 def getAttachments(msg,attachmentDirPath):
-    #default to current directory
-    if not attachmentDirPath:
-        attachmentDirPath = 'attachments'
 
     for filename in os.listdir(attachmentDirPath):
         path = os.path.join(attachmentDirPath, filename)
@@ -108,11 +103,11 @@ def sendMails(h, text):
     subject = raw_input("Please enter the subject line: ")
     greeting = raw_input("Please enter your greeting (e.g. Dear, Hi,...): ")
     fromStr = raw_input("Please enter your name: ")
-    attachmentDirPath = raw_input(
-        "Please enter directory name with files to attach [attachments as default]: ")
-    embedImageDirPath = raw_input(
-        "Please enter directory name with image to embed [image as default]:")
-    raw_input("\nPlease make sure info above is correct!!! [Press enter to continue or Control+C to quit]")
+    attachmentDirPath = 'attachments'
+    embedImageDirPath = 'image'
+    q = raw_input("\nPlease make sure info above is correct!!! [Press ENTER to continue or q + ENTER to quit]")
+    if q == 'q':
+        sys.exit("Good bye!")
 
     mailServer = smtplib.SMTP('smtp.gmail.com', 587)
     mailServer.ehlo()
@@ -121,9 +116,11 @@ def sendMails(h, text):
     mailServer.login(gmailUser, gmailPassword)
 
     for t in h:
-        personal_text = greeting + " " + t[NAME] + ",\n"
-        personal_text += text + "\n"
-        personal_text += '<br><img src="cid:image1">'
+        personal_text = greeting + " " + t[NAME] + ",<br><br>"
+        personal_text += text + "<br>"
+
+        if os.listdir(embedImageDirPath) != []:
+            personal_text += '<br><img src="cid:image1">'
         recipient = t[EMAIL]
         msg = MIMEMultipart('related')
         msg['Subject'] = subject
@@ -131,7 +128,8 @@ def sendMails(h, text):
         msg['From'] = fromStr
         msg.attach(MIMEText(personal_text, 'html'))
 	getAttachments(msg,attachmentDirPath)
-        embedImage(msg,embedImageDirPath)
+        if os.listdir(embedImageDirPath) != []:
+            embedImage(msg,embedImageDirPath)
         try:
             mailServer.sendmail(gmailUser, recipient, msg.as_string())
             print('Sent email to %s at %s' % (t[NAME],recipient))
@@ -147,8 +145,9 @@ def sendMails(h, text):
         print 'Some error(s) occured. Please see the text generated above!\n'
 
 if __name__ == "__main__":
-    print "Please make sure there is 'namesEmails.csv' and 'text.txt' files in the script folder before proceeding."
-    print "CSV file format must be 'name, email_address' per line. [Press Enter to Continue]"
+    print "Please make sure there is 'list.txt' and 'text.txt' files in the script folder before proceeding."
+    print "Please make sure there is 'attachments' and 'image' folders in the script folder before proceeding."
+    print "list.txt format must be 'name, email_address' per line. [Press ENTER to Continue]"
     raw_input()
     text = getText()
     namesEmails = getNamesEmails()
