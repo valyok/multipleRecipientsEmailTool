@@ -1,0 +1,50 @@
+This script allows you to send email from your GMail with options of attachments and an
+inline/embedded image to multiple recepients yet personalized.
+
+To make it work you will need to install Python on your computer.
+You can find it here www.python.org/download for your platfrom (PC, Mac,..)
+Make sure you don't install version 3 and above.
+
+FOR PC USERS
+On Windows computers python require more tweaking.
+After installing go to
+Control Panel -> System > Advanced -> Environment Variables.
+Look for one called Path in the list and click Edit.
+Add ";C:\Pythonxx" without quotes where xx is your Python version.
+(basically it is a folder name, just check what its name is on disc C)
+
+HOW TO LAUNCH THE SCRIPT
+
+ON PC:
+Then create a folder with a name "emailing" (no quotes) on disc C.
+Copy emailScript.py into the folder.
+
+Click Start and type "cmd" without quotes if you are on Vista or 7; or click
+Run if you are on XP and type "cmd" without quotes.
+Now type in the following followed by ENTER
+
+cd C:\emailing
+python emailScript.py
+
+ON MAC
+Got to Finder, press SHIFT+APPLE_BUTTON+U and launch Terminal from the list.
+Type the following commands followed by ENTER (you can just copy and paste into terminal)
+cd ~/Desktop
+mkdir emailing && cd emailing
+
+Then download https://github.com/valyok/multipleRecipientsEmailTool/raw/master/emailScript.py
+and put into the emailing folder.
+Go back terminal and type in the following followed by ENTER
+
+python emailScript.py
+
+
+GENERAL
+As the instruction after running the script suggest you must have 4 things in place in emailing folder.
+Two directories - attachments and image, 2 files list.txt and text.txt
+
+text.txt file is for the message of the email. It can contain basic HTML tags (e.g. br, p, h1,...)
+list.txt is name, email_address format per line.
+For example:
+John, john@gmail.com
+Kate, kate@gmail.lcom
