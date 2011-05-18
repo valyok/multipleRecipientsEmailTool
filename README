@@ -34,7 +34,7 @@ mkdir emailing && cd emailing
 
 Then download https://github.com/valyok/multipleRecipientsEmailTool/raw/master/emailScript.py
 and put into the emailing folder.
-Go back terminal and type in the following command followed by ENTER
+Go back to terminal and type in the following command followed by ENTER
 
 python emailScript.py
 
